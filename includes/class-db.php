@@ -53,9 +53,10 @@ class ASA_DB {
 
         $sql_predictions = "CREATE TABLE IF NOT EXISTS $predictions_table (
             id                   bigint(20)    NOT NULL AUTO_INCREMENT,
-            stock_symbol         varchar(50)    NOT NULL,
+            stock_symbol         varchar(50)   NOT NULL,
             predicted_price      decimal(10,2) NOT NULL,
             prediction_for_time  datetime      NOT NULL,
+            predicted_at         datetime      NOT NULL,
             PRIMARY KEY (id),
             INDEX idx_symbol (stock_symbol),
             FOREIGN KEY (stock_symbol) REFERENCES $stocks_table(symbol) ON DELETE CASCADE
@@ -149,9 +150,8 @@ class ASA_DB {
             'stock_symbol'        => $symbol,
             'predicted_price'     => $predicted_price,
             'prediction_for_time' => $prediction_for_time,
-        ], ['%s','%f','%s'] );
+            'predicted_at'        => current_time( 'mysql' ),
+        ], ['%s','%f','%s','%s'] );
     }
-
-
 
 }
