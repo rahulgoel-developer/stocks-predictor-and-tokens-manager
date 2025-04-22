@@ -52,13 +52,11 @@ class ASA_DB {
         ) $charset_collate;";
 
         $sql_predictions = "CREATE TABLE IF NOT EXISTS $predictions_table (
-            id              bigint(20)    NOT NULL AUTO_INCREMENT,
-            user_id         bigint(20)    NOT NULL,
-            stock_symbol    varchar(50)    NOT NULL,
-            predicted_price decimal(10,2) NOT NULL,
-            predicted_at    datetime      NOT NULL,
+            id                   bigint(20)    NOT NULL AUTO_INCREMENT,
+            stock_symbol         varchar(50)    NOT NULL,
+            predicted_price      decimal(10,2) NOT NULL,
+            prediction_for_time  datetime      NOT NULL,
             PRIMARY KEY (id),
-            INDEX idx_user   (user_id),
             INDEX idx_symbol (stock_symbol),
             FOREIGN KEY (stock_symbol) REFERENCES $stocks_table(symbol) ON DELETE CASCADE
         ) $charset_collate;";
@@ -144,15 +142,16 @@ class ASA_DB {
         ], ['%s','%f','%s'] );
     }
 
-    public static function add_prediction( $user_id, $symbol, $predicted_price ) {
+    public static function add_prediction( $symbol, $predicted_price, $prediction_for_time ) {
         global $wpdb;
         $table = $wpdb->prefix . 'asa_predictions';
         $wpdb->insert( $table, [
-            'user_id'         => $user_id,
-            'stock_symbol'    => $symbol,
-            'predicted_price' => $predicted_price,
-            'predicted_at'    => current_time( 'mysql' ),
-        ], ['%d','%s','%f','%s'] );
+            'stock_symbol'        => $symbol,
+            'predicted_price'     => $predicted_price,
+            'prediction_for_time' => $prediction_for_time,
+        ], ['%s','%f','%s'] );
     }
+
+
 
 }
