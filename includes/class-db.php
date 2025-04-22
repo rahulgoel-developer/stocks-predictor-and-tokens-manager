@@ -5,6 +5,9 @@ class ASA_DB {
         
         $tokens_table = $wpdb->prefix . 'asa_user_tokens';
         $stocks_table = $wpdb->prefix . 'asa_stocks_list';
+        $chosen_table      = $wpdb->prefix . 'asa_user_chosen_stocks_to_predict';
+        $live_prices_table = $wpdb->prefix . 'asa_live_prices';
+        $predictions_table = $wpdb->prefix . 'asa_predictions';
         $charset_collate = $wpdb->get_charset_collate();
 
         $sql_tokens = "CREATE TABLE IF NOT EXISTS $tokens_table (
@@ -26,10 +29,48 @@ class ASA_DB {
             UNIQUE KEY symbol (symbol)
         ) $charset_collate;";
 
-        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-        dbDelta($sql_tokens);
-        dbDelta($sql_stocks);
-        
+        $sql_chosen = "CREATE TABLE IF NOT EXISTS $chosen_table (
+            id             bigint(20)    NOT NULL AUTO_INCREMENT,
+            user_id        bigint(20)    NOT NULL,
+            stock_symbol   varchar(50)    NOT NULL,
+            chosen_at      datetime      NOT NULL,
+            PRIMARY KEY (id),
+            INDEX idx_user        (user_id),
+            INDEX idx_stock       (stock_symbol),
+            FOREIGN KEY (user_id)      REFERENCES $tokens_table(user_id) ON DELETE CASCADE,
+            FOREIGN KEY (stock_symbol) REFERENCES $stocks_table(symbol) ON DELETE CASCADE
+        ) $charset_collate;";
+
+        $sql_live_prices = "CREATE TABLE IF NOT EXISTS $live_prices_table (
+            id            bigint(20)    NOT NULL AUTO_INCREMENT,
+            stock_symbol  varchar(50)    NOT NULL,
+            price         decimal(10,2) NOT NULL,
+            recorded_at   datetime      NOT NULL,
+            PRIMARY KEY (id),
+            INDEX idx_symbol (stock_symbol),
+            FOREIGN KEY (stock_symbol) REFERENCES $stocks_table(symbol) ON DELETE CASCADE
+        ) $charset_collate;";
+
+        $sql_predictions = "CREATE TABLE IF NOT EXISTS $predictions_table (
+            id              bigint(20)    NOT NULL AUTO_INCREMENT,
+            user_id         bigint(20)    NOT NULL,
+            stock_symbol    varchar(50)    NOT NULL,
+            predicted_price decimal(10,2) NOT NULL,
+            predicted_at    datetime      NOT NULL,
+            PRIMARY KEY (id),
+            INDEX idx_user   (user_id),
+            INDEX idx_symbol (stock_symbol),
+            FOREIGN KEY (stock_symbol) REFERENCES $stocks_table(symbol) ON DELETE CASCADE
+        ) $charset_collate;";
+
+        require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+
+        dbDelta( $sql_tokens );
+        dbDelta( $sql_stocks );
+        dbDelta( $sql_chosen );
+        dbDelta( $sql_live_prices );
+        dbDelta( $sql_predictions );
+
         self::seed_initial_data();
     }
 
@@ -82,4 +123,36 @@ class ASA_DB {
             ORDER BY company_name ASC
         ");
     }
+
+    public static function add_chosen_stock( $user_id, $symbol ) {
+        global $wpdb;
+        $table = $wpdb->prefix . 'asa_user_chosen_stocks_to_predict';
+        $wpdb->insert( $table, [
+            'user_id'      => $user_id,
+            'stock_symbol' => $symbol,
+            'chosen_at'    => current_time( 'mysql' ),
+        ], ['%d','%s','%s'] );
+    }
+
+    public static function record_live_price( $symbol, $price ) {
+        global $wpdb;
+        $table = $wpdb->prefix . 'asa_live_prices';
+        $wpdb->insert( $table, [
+            'stock_symbol' => $symbol,
+            'price'        => $price,
+            'recorded_at'  => current_time( 'mysql' ),
+        ], ['%s','%f','%s'] );
+    }
+
+    public static function add_prediction( $user_id, $symbol, $predicted_price ) {
+        global $wpdb;
+        $table = $wpdb->prefix . 'asa_predictions';
+        $wpdb->insert( $table, [
+            'user_id'         => $user_id,
+            'stock_symbol'    => $symbol,
+            'predicted_price' => $predicted_price,
+            'predicted_at'    => current_time( 'mysql' ),
+        ], ['%d','%s','%f','%s'] );
+    }
+
 }
