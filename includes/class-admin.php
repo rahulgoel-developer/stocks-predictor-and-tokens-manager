@@ -16,6 +16,7 @@ class ASA_Admin {
     }
 
     public function register_settings() {
+        // Existing product tokens setting
         register_setting('asa-settings-group', 'asa_product_tokens');
         add_settings_section(
             'asa-main-section',
@@ -30,14 +31,38 @@ class ASA_Admin {
             'asa-settings',
             'asa-main-section'
         );
+
+        // NEW: Stock Prediction Page setting
+        register_setting('asa-settings-group', 'asa_prediction_page', [
+            'type' => 'integer',
+            'sanitize_callback' => 'absint',
+            'default' => 0,
+        ]);
+        add_settings_field(
+            'asa-prediction-page',
+            'Stock Prediction Page',
+            [$this, 'prediction_page_callback'],
+            'asa-settings',
+            'asa-main-section'
+        );
     }
 
     public function product_tokens_callback() {
         $mapping = get_option('asa_product_tokens');
-        echo '<textarea name="asa_product_tokens" rows="5" cols="50">' 
-             . esc_textarea($mapping) 
+        echo '<textarea name="asa_product_tokens" rows="5" cols="50">'
+             . esc_textarea($mapping)
              . '</textarea>';
         echo '<p class="description">Enter product ID:token pairs (one per line)<br>Example: 123:5</p>';
+    }
+
+    public function prediction_page_callback() {
+        $selected = get_option('asa_prediction_page');
+        wp_dropdown_pages([
+            'name' => 'asa_prediction_page',
+            'selected' => $selected,
+            'show_option_none' => '-- Select a Page --',
+        ]);
+        echo '<p class="description">Choose the page where users will submit stock predictions.</p>';
     }
 
     public function settings_page() {

@@ -154,4 +154,45 @@ class ASA_DB {
         ], ['%s','%f','%s','%s'] );
     }
 
+    public static function get_stock_live_and_predictions( $user_id ) {
+        global $wpdb;
+
+        $chosen_table      = $wpdb->prefix . 'asa_user_chosen_stocks_to_predict';
+        $live_table        = $wpdb->prefix . 'asa_live_prices';
+        $pred_table        = $wpdb->prefix . 'asa_predictions';
+
+        // 1. Get the most recently chosen stock symbol for this user
+        $chosen = $wpdb->get_row( $wpdb->prepare(
+            "SELECT stock_symbol FROM $chosen_table WHERE user_id = %d ORDER BY chosen_at DESC LIMIT 1",
+            $user_id
+        ) );
+        if ( ! $chosen ) {
+            return null; // no stock chosen
+        }
+        $symbol = $chosen->stock_symbol;
+
+        // 2. Fetch latest live price
+        $live = $wpdb->get_row( $wpdb->prepare(
+            "SELECT price, recorded_at FROM $live_table WHERE stock_symbol = %s ORDER BY recorded_at DESC LIMIT 1",
+            $symbol
+        ) );
+
+        // 3. Fetch future predictions (prediction_for_time > now)
+        $now = current_time( 'mysql' );
+        $predictions = $wpdb->get_results( $wpdb->prepare(
+            "SELECT predicted_price, prediction_for_time
+             FROM $pred_table
+             WHERE stock_symbol = %s AND prediction_for_time > %s
+             ORDER BY prediction_for_time ASC",
+            $symbol,
+            $now
+        ) );
+
+        return (object) [
+            'symbol'               => $symbol,
+            'latest_live_price'    => $live,
+            'upcoming_predictions' => $predictions,
+        ];
+    }
+
 }
