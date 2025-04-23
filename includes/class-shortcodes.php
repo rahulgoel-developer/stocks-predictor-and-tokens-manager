@@ -10,8 +10,13 @@ class ASA_Shortcodes {
         
         $user_id = get_current_user_id();
         $tokens = ASA_DB::get_user_tokens($user_id);
+
+        if($tokens){
+            return "<a class=\"prediction-page-link\" href=\"".ASA_Stocks_Prediction_Page::get_url()."\">See Predictions<span>".$tokens." Tokens</span></a>";
+        } else{
+            return 'Buy tokens to see predictions' ;
+        }
         
-        return 'Your Tokens: ' . ($tokens ?: '0');
     }
 
     public function show_stocks() {
