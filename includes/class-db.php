@@ -31,7 +31,7 @@ class ASA_DB {
 
         $sql_chosen = "CREATE TABLE IF NOT EXISTS $chosen_table (
             id             bigint(20)    NOT NULL AUTO_INCREMENT,
-            user_id        bigint(20)    NOT NULL,
+            user_id        mediumint(20)    NOT NULL,
             stock_symbol   varchar(50)    NOT NULL,
             chosen_at      datetime      NOT NULL,
             PRIMARY KEY (id),
