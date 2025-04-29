@@ -70,6 +70,8 @@ class ASA_DB {
         dbDelta( $sql_live_prices );
         dbDelta( $sql_predictions );
 
+        error_log("Create Chosen Stocks Table Error: " . $wpdb->last_error);
+
         self::seed_initial_data();
     }
 
@@ -125,7 +127,7 @@ class ASA_DB {
 
     public static function add_chosen_stock( $user_id, $symbol ) {
         global $wpdb;
-        $table = $wpdb->prefix . 'asa_user_chosen_stocks_to_predict';
+        $table = $wpdb->prefix . 'asa_user_chosen_stocks';
         $wpdb->insert( $table, [
             'user_id'      => $user_id,
             'stock_symbol' => $symbol,
@@ -157,7 +159,7 @@ class ASA_DB {
     public static function get_stock_live_and_predictions( $user_id ) {
         global $wpdb;
 
-        $chosen_table      = $wpdb->prefix . 'asa_user_chosen_stocks_to_predict';
+        $chosen_table      = $wpdb->prefix . 'asa_user_chosen_stocks';
         $live_table        = $wpdb->prefix . 'asa_live_prices';
         $pred_table        = $wpdb->prefix . 'asa_predictions';
 
