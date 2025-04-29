@@ -3,6 +3,7 @@ class ASA_Shortcodes {
     public function __construct() {
         add_shortcode('show_asa_user_tokens', [$this, 'show_tokens']);
         add_shortcode('relist_stocks', [$this, 'show_stocks']);
+        add_shortcode('stocks_prediction_page', [$this, 'stocks_prediction_page']);
     }
 
     public function show_tokens() {
@@ -46,5 +47,9 @@ class ASA_Shortcodes {
         </div>
         <?php
         return ob_get_clean();
+    }
+
+    public function stocks_prediction_page(){
+        return ASA_Stocks_Prediction_Page::get_content();
     }
 }

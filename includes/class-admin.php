@@ -63,7 +63,7 @@ class ASA_Admin {
             'show_option_none' => '-- Select a Page --',
         ]);
         echo '<p class="description">Choose the page where users will submit stock predictions.</p>';
-        echo '<p class="description">Add Shortcode [asa-stocks-prediction-page] to the content of the page.</p>';
+        echo '<p class="description" style="color:red; font-weight:700; font-size:20px;">Add Shortcode [stocks_prediction_page] to the content of the page.</p>';
     }
 
     public function settings_page() {
