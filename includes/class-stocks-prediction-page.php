@@ -23,15 +23,12 @@ class ASA_Stocks_Prediction_Page {
      * @param string $content Original content.
      * @return string Modified content.
      */
-    public static function get_content( $content ) {
+    public static function get_content() {
         if ( ! is_user_logged_in() ) {
             return '<p>Please <a href="' . wp_login_url( self::get_url() ) . '">log in</a> to predict stocks.</p>' . $content;
         }
 
         $page_id = get_option('asa_prediction_page');
-        if ( ! is_singular() || get_queried_object_id() != $page_id ) {
-            return $content;  // not our page
-        }
 
         // Process form submission if any
         if ( ! empty( $_POST['asa_submit_prediction'] ) ) {
