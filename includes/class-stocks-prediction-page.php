@@ -66,7 +66,7 @@ class ASA_Stocks_Prediction_Page {
             unset( $_SESSION['asa_message'] );
         }
 
-        return $markup . $content;
+        return $markup;
     }
 
     /**
