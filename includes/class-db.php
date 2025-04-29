@@ -5,7 +5,7 @@ class ASA_DB {
         
         $tokens_table = $wpdb->prefix . 'asa_user_tokens';
         $stocks_table = $wpdb->prefix . 'asa_stocks_list';
-        $chosen_table      = $wpdb->prefix . 'asa_user_chosen_stocks_to_predict';
+        $chosen_table      = $wpdb->prefix . 'asa_user_chosen_stocks';
         $live_prices_table = $wpdb->prefix . 'asa_live_prices';
         $predictions_table = $wpdb->prefix . 'asa_predictions';
         $charset_collate = $wpdb->get_charset_collate();
