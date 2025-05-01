@@ -101,7 +101,7 @@ class ASA_Stocks_Prediction_Page {
         // Debit one token
         ASA_DB::add_tokens( $user_id, -1 );
 
-        self::set_message("Stock $symbol assigned. 1 token deducted.");
+        self::set_message("Stock $symbol assigned. 1 token deducted.<script>alert()</script>");
     }
 
     /**

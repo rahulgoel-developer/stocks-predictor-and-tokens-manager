@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Stocks Predictor and Tokens Manager
-Description: Stock token management system for predictions with Indian market data. A.k.a AI Stocks Analyser
+Description: Stock token management system for predictions with Indian market data. A.k.a AI Stocks Analyser.
 Version: 1.0
 Author: Rahul Goel
 */
