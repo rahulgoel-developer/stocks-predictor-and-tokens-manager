@@ -133,6 +133,7 @@ class ASA_DB {
             'stock_symbol' => $symbol,
             'chosen_at'    => current_time( 'mysql' ),
         ], ['%d','%s','%s'] );
+        /* WordPress database error: [Duplicate entry '1-TATAMOTORS' for key 'unique_user_id_and_stock'] INSERT INTO `wp_asa_user_chosen_stocks` (`user_id`, `stock_symbol`, `chosen_at`) VALUES (1, 'TATAMOTORS', '2025-05-02 14:45:20')  */
     }
 
     public static function record_live_price( $symbol, $price ) {
