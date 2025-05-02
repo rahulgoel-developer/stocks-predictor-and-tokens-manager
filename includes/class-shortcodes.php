@@ -1,12 +1,12 @@
 <?php
 class ASA_Shortcodes {
     public function __construct() {
-        add_shortcode('show_asa_user_tokens', [$this, 'show_tokens']);
+        add_shortcode('prediction_page_link_with_token_amount', [$this, 'prediction_page_link_with_show_tokens']);
         add_shortcode('relist_stocks', [$this, 'show_stocks']);
         add_shortcode('stocks_prediction_page', [$this, 'stocks_prediction_page']);
     }
 
-    public function show_tokens() {
+    public function prediction_page_link_with_show_tokens() {
         if (!is_user_logged_in()) return 'Please login to view tokens';
         
         $user_id = get_current_user_id();
