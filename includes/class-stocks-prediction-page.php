@@ -95,13 +95,18 @@ class ASA_Stocks_Prediction_Page {
             return;
         }
 
+        if ( ASA_DB::is_duplicate_chosen_stock_entry( $user_id, $symbol ) ) {
+            self::set_message("Stock $symbol already assigned to you.");
+            return; // Or handle it as needed, e.g., return false or log a message
+        }    
+
         // Record the chosen stock
         ASA_DB::add_chosen_stock( $user_id, $symbol );
 
         // Debit one token
         ASA_DB::add_tokens( $user_id, -1 );
 
-        self::set_message("Stock $symbol assigned. 1 token deducted.<script>alert()</script>");
+        self::set_message("Stock $symbol assigned. 1 token deducted.");
     }
 
     /**

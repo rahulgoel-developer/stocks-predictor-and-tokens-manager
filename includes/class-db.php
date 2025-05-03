@@ -128,13 +128,37 @@ class ASA_DB {
     public static function add_chosen_stock( $user_id, $symbol ) {
         global $wpdb;
         $table = $wpdb->prefix . 'asa_user_chosen_stocks';
-        $wpdb->insert( $table, [
-            'user_id'      => $user_id,
-            'stock_symbol' => $symbol,
-            'chosen_at'    => current_time( 'mysql' ),
-        ], ['%d','%s','%s'] );
-        /* WordPress database error: [Duplicate entry '1-TATAMOTORS' for key 'unique_user_id_and_stock'] INSERT INTO `wp_asa_user_chosen_stocks` (`user_id`, `stock_symbol`, `chosen_at`) VALUES (1, 'TATAMOTORS', '2025-05-02 14:45:20')  */
+    
+        // Check if the combination already exists
+        $exists = $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM $table WHERE user_id = %d AND stock_symbol = %s",
+            $user_id,
+            $symbol
+        ) );
+    
+        // If not exists, insert
+        if ( ! $exists ) {
+            $wpdb->insert( $table, [
+                'user_id'      => $user_id,
+                'stock_symbol' => $symbol,
+                'chosen_at'    => current_time( 'mysql' ),
+            ], ['%d','%s','%s'] );
+        }
     }
+
+    public static function is_duplicate_chosen_stock_entry( $user_id, $symbol ) {
+        global $wpdb;
+        $table = $wpdb->prefix . 'asa_user_chosen_stocks';
+    
+        $count = $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM $table WHERE user_id = %d AND stock_symbol = %s",
+            $user_id,
+            $symbol
+        ) );
+    
+        return $count > 0;
+    }
+    
 
     public static function record_live_price( $symbol, $price ) {
         global $wpdb;
