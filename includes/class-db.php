@@ -157,8 +157,7 @@ class ASA_DB {
         ) );
     
         return $count > 0;
-    }
-    
+    }    
 
     public static function record_live_price( $symbol, $price ) {
         global $wpdb;
@@ -179,6 +178,15 @@ class ASA_DB {
             'prediction_for_time' => $prediction_for_time,
             'predicted_at'        => current_time( 'mysql' ),
         ], ['%s','%f','%s','%s'] );
+    }
+
+    public static function get_user_stocks( $user_id ) {
+        global $wpdb;
+        $chosen_table      = $wpdb->prefix . 'asa_user_chosen_stocks';
+        $chosen = $wpdb->get_row( $wpdb->prepare(
+            "SELECT stock_symbol FROM $chosen_table WHERE user_id = %d ORDER BY chosen_at",
+            $user_id
+        ) );
     }
 
     public static function get_stock_live_and_predictions( $user_id ) {
