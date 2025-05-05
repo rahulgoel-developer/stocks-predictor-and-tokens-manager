@@ -4,7 +4,7 @@ class ASA_Stock_Search_JS {
         add_action('wp_enqueue_scripts', ['ASA_Stock_Search_JS', 'enqueue_select2_assets_for_stock_dropdown']);
     }
 
-    function enqueue_select2_assets_for_stock_dropdown() {
+    public static function enqueue_select2_assets_for_stock_dropdown() {
         // Enqueue Select2 CSS
         wp_enqueue_style(
             'select2-css',
