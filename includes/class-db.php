@@ -182,13 +182,16 @@ class ASA_DB {
 
     public static function get_user_stocks( $user_id ) {
         global $wpdb;
-        $chosen_table      = $wpdb->prefix . 'asa_user_chosen_stocks';
-        $chosen = $wpdb->get_row( $wpdb->prepare(
-            "SELECT stock_symbol FROM $chosen_table WHERE user_id = %d ORDER BY chosen_at",
+        $chosen_table = $wpdb->prefix . 'asa_user_chosen_stocks';
+        
+        $chosen = $wpdb->get_results( $wpdb->prepare(
+            "SELECT stock_symbol, chosen_at FROM $chosen_table WHERE user_id = %d ORDER BY chosen_at",
             $user_id
         ) );
+    
+        return $chosen;
     }
-
+    
     public static function get_stock_live_and_predictions( $user_id ) {
         global $wpdb;
 
