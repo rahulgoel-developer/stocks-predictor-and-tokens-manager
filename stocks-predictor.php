@@ -17,6 +17,7 @@ require_once plugin_dir_path(__FILE__) . 'includes/class-admin.php';
 require_once plugin_dir_path(__FILE__) . 'includes/class-woocommerce.php';
 require_once plugin_dir_path(__FILE__) . 'includes/class-shortcodes.php';
 require_once plugin_dir_path(__FILE__) . 'includes/class-post-handler.php';
+require_once plugin_dir_path(__FILE__) . 'includes/class-stock-search-js.php';
 
 // Activation/Deactivation hooks
 register_activation_hook(__FILE__, ['ASA_DB', 'activate']);
@@ -28,3 +29,4 @@ new ASA_WooCommerce();
 new ASA_Shortcodes();
 ASA_Cron::init();
 ASA_Post_Handler::init();
+ASA_Stock_Search_JS::init();
