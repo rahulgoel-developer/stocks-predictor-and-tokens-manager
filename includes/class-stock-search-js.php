@@ -1,7 +1,7 @@
 <?php
 class ASA_Stock_Search_JS {
     public static function init() {
-        add_action('wp_enqueue_scripts', [$this, 'enqueue_select2_assets_for_stock_dropdown']);
+        add_action('wp_enqueue_scripts', ['ASA_Stock_Search_JS', 'enqueue_select2_assets_for_stock_dropdown']);
     }
 
     function enqueue_select2_assets_for_stock_dropdown() {
