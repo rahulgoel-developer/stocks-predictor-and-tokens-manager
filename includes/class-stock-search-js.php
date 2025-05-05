@@ -1,7 +1,9 @@
 <?php
 class ASA_Stock_Search_JS {
     public static function init() {
-        add_action('wp_enqueue_scripts', ['ASA_Stock_Search_JS', 'enqueue_select2_assets_for_stock_dropdown']);
+        if(is_page(get_option('asa_prediction_page'))){
+            add_action('wp_enqueue_scripts', ['ASA_Stock_Search_JS', 'enqueue_select2_assets_for_stock_dropdown']);
+        }
     }
 
     public static function enqueue_select2_assets_for_stock_dropdown() {
