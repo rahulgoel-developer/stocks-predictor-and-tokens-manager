@@ -12,6 +12,7 @@ if (!defined('ABSPATH')) exit;
 require_once plugin_dir_path(__FILE__) . 'includes/class-db.php';
 require_once plugin_dir_path(__FILE__) . 'includes/class-cron.php';
 require_once plugin_dir_path(__FILE__) . 'includes/class-stock-updater.php';
+require_once plugin_dir_path(__FILE__) . 'includes/class-price-updater.php';
 require_once plugin_dir_path(__FILE__) . 'includes/class-stocks-prediction-page.php';
 require_once plugin_dir_path(__FILE__) . 'includes/class-admin.php';
 require_once plugin_dir_path(__FILE__) . 'includes/class-woocommerce.php';

@@ -191,7 +191,26 @@ class ASA_DB {
     
         return $chosen;
     }
+
+    public static function get_all_selected_stocks_isin() {
+        global $wpdb;
+        $chosen_table = $wpdb->prefix . 'asa_user_chosen_stocks';
+        $stocks_table = $wpdb->prefix . 'asa_stocks_list';
     
+        // No placeholders needed, so no prepare() call
+        $sql = "
+            SELECT DISTINCT
+                c.stock_symbol,
+                s.isin
+            FROM {$chosen_table} AS c
+            JOIN {$stocks_table} AS s
+              ON c.stock_symbol = s.symbol
+            ORDER BY c.chosen_at
+        ";
+    
+        return $wpdb->get_results( $sql );
+    }
+            
     public static function get_stock_live_and_predictions( $user_id ) {
         global $wpdb;
 
