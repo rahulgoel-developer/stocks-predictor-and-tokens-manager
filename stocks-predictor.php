@@ -8,7 +8,7 @@ Author: Rahul Goel
 
 if (!defined('ABSPATH')) exit;
 
-$dotenv = Dotenv\Dotenv::createImmutable( __DIR__ );
+$dotenv = Dotenv\Dotenv::createImmutable( __FILE__ );
 $dotenv->load();
 
 // Load required files
