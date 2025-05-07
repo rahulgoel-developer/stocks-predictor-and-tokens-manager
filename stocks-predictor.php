@@ -8,6 +8,9 @@ Author: Rahul Goel
 
 if (!defined('ABSPATH')) exit;
 
+$dotenv = Dotenv\Dotenv::createImmutable( __DIR__ );
+$dotenv->load();
+
 // Load required files
 require_once plugin_dir_path(__FILE__) . 'includes/class-db.php';
 require_once plugin_dir_path(__FILE__) . 'includes/class-cron.php';
