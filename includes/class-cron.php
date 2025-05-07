@@ -16,5 +16,6 @@ class ASA_Cron {
 
     public static function deactivate() {
         wp_clear_scheduled_hook('asa_daily_stock_update');
+        wp_clear_scheduled_hook('asa_hourly_stock_price_update');
     }
 }
