@@ -69,7 +69,10 @@ class ASA_Stocks_Prediction_Page {
                 $markup .= "<li>$symbol - Chosen on $date</li>";
             }
             $markup .= '</ul>';
-        }    
+        }
+
+        $testData = ASA_DB::get_all_selected_stocks_isin();
+        $markup .= "<pre>" . print_r($testData, true) . "</pre>";
 
         // Append any message set during assign_stock_to_user()
         if ( isset( $_SESSION['asa_message'] ) ) {
