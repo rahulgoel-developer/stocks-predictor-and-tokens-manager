@@ -15,7 +15,7 @@ class ASA_Price_Updater {
         $live_prices_table = $wpdb->prefix . 'asa_live_prices';
 
         // 3) Your Upstox access token (e.g. define in wp-config.php or .env)
-        $accessToken = defined('UPSTOX_ACCESS_TOKEN') ? UPSTOX_ACCESS_TOKEN : '';
+        $accessToken = getenv('UPSTOX_ACCESS_TOKEN');
 
         if ( empty( $accessToken ) ) {
             error_log( 'ASA_Price_Updater: Missing UPSTOX_ACCESS_TOKEN.' );
