@@ -3,68 +3,72 @@ class ASA_Price_Updater {
     public static function record_all_selected_stocks_price() {
         global $wpdb;
 
-        // 1) Get all unique user-chosen symbols + ISINs
         $stocks = ASA_DB::get_all_selected_stocks_isin();
-
         if ( empty( $stocks ) ) {
             error_log( 'ASA_Price_Updater: No stocks to fetch prices for.' );
             return;
         }
 
-        // 2) Table name for live prices
-        $live_prices_table = $wpdb->prefix . 'asa_live_prices';
-
-        // 3) Your Upstox access token (e.g. define in wp-config.php or .env)
-        $accessToken = getenv('UPSTOX_ACCESS_TOKEN');
-
+        $live_table  = $wpdb->prefix . 'asa_live_prices';
+        $accessToken = getenv( 'UPSTOX_ACCESS_TOKEN' );
         if ( empty( $accessToken ) ) {
             error_log( 'ASA_Price_Updater: Missing UPSTOX_ACCESS_TOKEN.' );
             return;
         }
 
         foreach ( $stocks as $stock ) {
-            // Build instrument key: NSE_EQ|<ISIN>
-            $instrument_key = 'NSE_EQ|' . $stock->isin;
+            // Build the v2 symbol (pipe) and also the lookup key (colon)
+            $symbol_param = 'NSE_EQ|' . $stock->isin;
+            $lookup_key   = str_replace( '|', ':', $symbol_param );
 
-            // 4) Prepare request
-            $url = "https://api.upstox.com/v3/market-quote/ltp?instrument_key=" . rawurlencode( $instrument_key );
-            $args = [
-                'timeout'   => 15,
-                'sslverify' => false,
-                'headers'   => [
-                    'Accept'        => 'application/json',
-                    'Authorization' => 'Bearer ' . $accessToken,
+            $url = 'https://api.upstox.com/v2/market-quote/ltp?symbol=' . rawurlencode( $symbol_param );
+            $ch  = curl_init( $url );
+            curl_setopt_array( $ch, [
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_HTTPHEADER     => [
+                    "Authorization: Bearer {$accessToken}",
+                    "Accept: application/json",
                 ],
-            ];
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_TIMEOUT        => 15,
+            ] );
 
-            // Fetch via WP HTTP API :contentReference[oaicite:1]{index=1}
-            $response = wp_remote_get( $url, $args );
+            $body     = curl_exec( $ch );
+            $err      = curl_error( $ch );
+            curl_close( $ch );
 
-            if ( is_wp_error( $response ) ) {
-                error_log( "ASA_Price_Updater: HTTP error for {$instrument_key}: " . $response->get_error_message() );
+            if ( $err ) {
+                error_log( "ASA_Price_Updater: cURL error for {$symbol_param}: {$err}" );
                 continue;
             }
 
-            $body = wp_remote_retrieve_body( $response );
             $data = json_decode( $body, true );
-
-            // 5) Extract price (assumes structure: ['data']['ltp'] or ['ltp'])
-            $ltp = null;
-            if ( isset( $data['data']['ltp'] ) ) {
-                $ltp = floatval( $data['data']['ltp'] );
-            } elseif ( isset( $data['ltp'] ) ) {
-                $ltp = floatval( $data['ltp'] );
-            } else {
-                error_log( "ASA_Price_Updater: Unable to find 'ltp' in response for {$instrument_key}." );
+            if ( empty( $data['status'] ) || 'success' !== $data['status'] ) {
+                error_log( "ASA_Price_Updater: API error for {$symbol_param}: " . var_export( $data, true ) );
                 continue;
             }
 
-            // 6) Insert into live_prices table
+            // 1) Try the v2 last_price field
+            if ( isset( $data['data'][ $lookup_key ]['last_price'] ) ) {
+                $price = floatval( $data['data'][ $lookup_key ]['last_price'] );
+
+            // 2) Fallback: old v3-style ltp
+            } elseif ( isset( $data['data']['ltp'] ) ) {
+                $price = floatval( $data['data']['ltp'] );
+
+            } elseif ( isset( $data['ltp'] ) ) {
+                $price = floatval( $data['ltp'] );
+
+            } else {
+                error_log( "ASA_Price_Updater: Unable to extract price for {$symbol_param}. Response: " . var_export( $data, true ) );
+                continue;
+            }
+
             $inserted = $wpdb->insert(
-                $live_prices_table,
+                $live_table,
                 [
                     'stock_symbol' => sanitize_text_field( $stock->stock_symbol ),
-                    'price'        => $ltp,
+                    'price'        => $price,
                     'recorded_at'  => current_time( 'mysql' ),
                 ],
                 [ '%s', '%f', '%s' ]
@@ -75,6 +79,6 @@ class ASA_Price_Updater {
             }
         }
 
-        error_log( 'ASA_Price_Updater: Price recording completed for ' . count( $stocks ) . ' instruments.' );
+        error_log( 'ASA_Price_Updater: Completed for ' . count( $stocks ) . ' stocks.' );
     }
 }
