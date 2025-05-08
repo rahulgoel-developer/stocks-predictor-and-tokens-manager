@@ -17,10 +17,9 @@ class ASA_Price_Updater {
         }
 
         foreach ( $stocks as $stock ) {
-            // Build the v2 symbol (pipe) and also the lookup key (colon)
             $symbol_param = 'NSE_EQ|' . $stock->isin;
-            $lookup_key   = str_replace( '|', ':', $symbol_param );
 
+            // v2 endpoint for LTP
             $url = 'https://api.upstox.com/v2/market-quote/ltp?symbol=' . rawurlencode( $symbol_param );
             $ch  = curl_init( $url );
             curl_setopt_array( $ch, [
@@ -32,9 +31,8 @@ class ASA_Price_Updater {
                 CURLOPT_SSL_VERIFYPEER => false,
                 CURLOPT_TIMEOUT        => 15,
             ] );
-
-            $body     = curl_exec( $ch );
-            $err      = curl_error( $ch );
+            $body = curl_exec( $ch );
+            $err  = curl_error( $ch );
             curl_close( $ch );
 
             if ( $err ) {
@@ -48,22 +46,22 @@ class ASA_Price_Updater {
                 continue;
             }
 
-            // 1) Try the v2 last_price field
-            if ( isset( $data['data'][ $lookup_key ]['last_price'] ) ) {
-                $price = floatval( $data['data'][ $lookup_key ]['last_price'] );
+            // ** New extraction logic **:
+            // Find the entry in data[] whose 'instrument_token' matches our request
+            $price = null;
+            foreach ( $data['data'] as $entry ) {
+                if ( isset( $entry['instrument_token'] ) && $entry['instrument_token'] === $symbol_param ) {
+                    $price = floatval( $entry['last_price'] );
+                    break;
+                }
+            }
 
-            // 2) Fallback: old v3-style ltp
-            } elseif ( isset( $data['data']['ltp'] ) ) {
-                $price = floatval( $data['data']['ltp'] );
-
-            } elseif ( isset( $data['ltp'] ) ) {
-                $price = floatval( $data['ltp'] );
-
-            } else {
+            if ( null === $price ) {
                 error_log( "ASA_Price_Updater: Unable to extract price for {$symbol_param}. Response: " . var_export( $data, true ) );
                 continue;
             }
 
+            // Insert into DB
             $inserted = $wpdb->insert(
                 $live_table,
                 [
