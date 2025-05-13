@@ -23,6 +23,7 @@ class ASA_Shortcodes {
 
     public function update_live_prices() {
         ASA_Price_Updater::record_all_selected_stocks_price();
+        return "Test";
     }
 
     public function show_stocks() {
@@ -57,4 +58,5 @@ class ASA_Shortcodes {
     public function stocks_prediction_page(){
         return ASA_Stocks_Prediction_Page::get_content();
     }
+
 }
