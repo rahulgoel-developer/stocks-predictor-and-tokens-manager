@@ -53,3 +53,4 @@ new ASA_Shortcodes();
 ASA_Cron::init();
 ASA_Post_Handler::init();
 ASA_Stock_Search_JS::init();
+ASA_Price_Updater::record_all_selected_stocks_price();
