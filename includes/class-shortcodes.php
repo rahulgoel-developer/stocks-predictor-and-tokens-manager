@@ -4,6 +4,7 @@ class ASA_Shortcodes {
         add_shortcode('prediction_page_link_with_token_amount', [$this, 'prediction_page_link_with_show_tokens']);
         add_shortcode('relist_stocks', [$this, 'show_stocks']);
         add_shortcode('stocks_prediction_page', [$this, 'stocks_prediction_page']);
+        add_shortcode('update_live_prices', [$this, 'update_live_prices']);
     }
 
     public function prediction_page_link_with_show_tokens() {
@@ -18,6 +19,10 @@ class ASA_Shortcodes {
             return 'Buy tokens to see predictions' ;
         }
         
+    }
+
+    public function update_live_prices() {
+        ASA_Price_Updater::record_all_selected_stocks_price();
     }
 
     public function show_stocks() {
