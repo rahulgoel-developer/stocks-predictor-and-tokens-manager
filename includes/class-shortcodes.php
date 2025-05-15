@@ -26,7 +26,7 @@ class ASA_Shortcodes {
             ASA_Price_Updater::record_all_selected_stocks_price();
             return "Test update complete";
         }
-        return "Pass correct paranmeters";
+        return "Pass correct parameters";
     }
 
     public function show_stocks() {
