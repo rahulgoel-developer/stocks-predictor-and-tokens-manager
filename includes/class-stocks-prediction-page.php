@@ -73,9 +73,8 @@ class ASA_Stocks_Prediction_Page {
                 $symbol = esc_html( $chosen->stock_symbol );
                 $date   = esc_html( date( 'M d, Y H:i', strtotime( $chosen->chosen_at ) ) );
                 $dateObj = new DateTime($date);
-                $storedTz   = $dateObj->getTimezone()->getName();
-                $formatted  = $dateObj->format('Y-m-d H:i:s T');
-                $markup    .= "<li>{$symbol} - Chosen on {$formatted} ({$storedTz})</li>";                
+                $formatted  = $dateObj->format('Y-m-d h:i:s a');
+                $markup    .= "<li>{$symbol} - Chosen on {$formatted} </li>";                
             }
             $markup .= '</ul>';
         }
