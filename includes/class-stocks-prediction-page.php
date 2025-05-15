@@ -60,26 +60,28 @@ class ASA_Stocks_Prediction_Page {
             $markup .= '</form>';
         }
 
-        $chosen_stocks = ASA_DB::get_user_stocks( $user_id );
-        if ( ! empty( $chosen_stocks ) ) {
-            $markup .= '<h3>Your Chosen Stocks</h3><ul>';
-            foreach ( $chosen_stocks as $chosen ) {
-                $symbol = esc_html( $chosen->stock_symbol );
-                $date   = esc_html( date( 'M d, Y H:i', strtotime( $chosen->chosen_at ) ) );
-                $markup .= "<li>$symbol - Chosen on $date</li>";
-            }
-            $markup .= '</ul>';
-        }
-
-        $testData = ASA_DB::get_all_selected_stocks_isin();
-        $markup .= "<pre>" . print_r($testData, true) . "</pre>";
-
         // Append any message set during assign_stock_to_user()
         if ( isset( $_SESSION['asa_message'] ) ) {
             $markup .= '<div class="asa-message">' . esc_html( $_SESSION['asa_message'] ) . '</div>';
             unset( $_SESSION['asa_message'] );
         }
 
+        $chosen_stocks = ASA_DB::get_user_stocks( $user_id );
+        if ( ! empty( $chosen_stocks ) ) {
+            $markup .= '<h3>Your Chosen Stocks</h3><ul>';
+            foreach ( $chosen_stocks as $chosen ) {
+                $symbol = esc_html( $chosen->stock_symbol );
+                $date   = esc_html( date( 'M d, Y H:i', strtotime( $chosen->chosen_at ) ) );
+                $dateObj = new DateTime($date);
+                $storedTz   = $dateObj->getTimezone()->getName();
+                $formatted  = $dateObj->format('Y-m-d H:i:s T');
+                $markup    .= "<li>{$symbol} - Chosen on {$formatted} ({$storedTz})</li>";                
+            }
+            $markup .= '</ul>';
+        }
+
+        $testData = ASA_DB::get_all_selected_stocks_isin();
+        $markup .= "<pre>" . print_r($testData, true) . "</pre>";
         return $markup;
     }
 
