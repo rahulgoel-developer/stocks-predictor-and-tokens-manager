@@ -1,18 +1,7 @@
 <?php
 class ASA_DB {
-    private static $timezone_set = false;
-
-    private static function ensure_timezone() {
-        if (!self::$timezone_set) {
-            global $wpdb;
-            $wpdb->query("SET time_zone = '+05:30';");
-            self::$timezone_set = true;
-        }
-    }
-
     public static function activate() {
         global $wpdb;
-        self::ensure_timezone();
         
         $tokens_table = $wpdb->prefix . 'asa_user_tokens';
         $stocks_table = $wpdb->prefix . 'asa_stocks_list';
@@ -87,13 +76,11 @@ class ASA_DB {
     }
 
     private static function seed_initial_data() {
-        self::ensure_timezone();
         ASA_Stock_Updater::update_nse_stocks();
     }
 
     public static function add_tokens($user_id, $tokens) {
         global $wpdb;
-        self::ensure_timezone();
         $table_name = $wpdb->prefix . 'asa_user_tokens';
         
         $existing = $wpdb->get_var($wpdb->prepare(
@@ -118,7 +105,6 @@ class ASA_DB {
 
     public static function get_user_tokens($user_id) {
         global $wpdb;
-        self::ensure_timezone();
         $table_name = $wpdb->prefix . 'asa_user_tokens';
         
         return $wpdb->get_var($wpdb->prepare(
@@ -129,7 +115,6 @@ class ASA_DB {
 
     public static function get_stocks_list() {
         global $wpdb;
-        self::ensure_timezone();
         $table_name = $wpdb->prefix . 'asa_stocks_list';
         
         return $wpdb->get_results("
@@ -142,7 +127,6 @@ class ASA_DB {
 
     public static function add_chosen_stock( $user_id, $symbol ) {
         global $wpdb;
-        self::ensure_timezone();
         $table = $wpdb->prefix . 'asa_user_chosen_stocks';
     
         // Check if the combination already exists
@@ -164,7 +148,6 @@ class ASA_DB {
 
     public static function is_duplicate_chosen_stock_entry( $user_id, $symbol ) {
         global $wpdb;
-        self::ensure_timezone();
         $table = $wpdb->prefix . 'asa_user_chosen_stocks';
     
         $count = $wpdb->get_var( $wpdb->prepare(
@@ -178,7 +161,6 @@ class ASA_DB {
 
     public static function record_live_price( $symbol, $price ) {
         global $wpdb;
-        self::ensure_timezone();
         $table = $wpdb->prefix . 'asa_live_prices';
         $wpdb->insert( $table, [
             'stock_symbol' => $symbol,
@@ -189,7 +171,6 @@ class ASA_DB {
 
     public static function add_prediction( $symbol, $predicted_price, $prediction_for_time ) {
         global $wpdb;
-        self::ensure_timezone();
         $table = $wpdb->prefix . 'asa_predictions';
         $wpdb->insert( $table, [
             'stock_symbol'        => $symbol,
@@ -201,7 +182,6 @@ class ASA_DB {
 
     public static function get_user_stocks( $user_id ) {
         global $wpdb;
-        self::ensure_timezone();
         $chosen_table = $wpdb->prefix . 'asa_user_chosen_stocks';
         
         $chosen = $wpdb->get_results( $wpdb->prepare(
@@ -214,10 +194,10 @@ class ASA_DB {
 
     public static function get_all_selected_stocks_isin() {
         global $wpdb;
-        self::ensure_timezone();
         $chosen_table = $wpdb->prefix . 'asa_user_chosen_stocks';
         $stocks_table = $wpdb->prefix . 'asa_stocks_list';
     
+        // No placeholders needed, so no prepare() call
         $sql = "
             SELECT DISTINCT
                 c.stock_symbol,
@@ -233,26 +213,28 @@ class ASA_DB {
             
     public static function get_stock_live_and_predictions( $user_id ) {
         global $wpdb;
-        self::ensure_timezone();
 
         $chosen_table      = $wpdb->prefix . 'asa_user_chosen_stocks';
         $live_table        = $wpdb->prefix . 'asa_live_prices';
         $pred_table        = $wpdb->prefix . 'asa_predictions';
 
+        // 1. Get the most recently chosen stock symbol for this user
         $chosen = $wpdb->get_row( $wpdb->prepare(
             "SELECT stock_symbol FROM $chosen_table WHERE user_id = %d ORDER BY chosen_at DESC LIMIT 1",
             $user_id
         ) );
         if ( ! $chosen ) {
-            return null;
+            return null; // no stock chosen
         }
         $symbol = $chosen->stock_symbol;
 
+        // 2. Fetch latest live price
         $live = $wpdb->get_row( $wpdb->prepare(
             "SELECT price, recorded_at FROM $live_table WHERE stock_symbol = %s ORDER BY recorded_at DESC LIMIT 1",
             $symbol
         ) );
 
+        // 3. Fetch future predictions (prediction_for_time > now)
         $now = current_time( 'mysql' );
         $predictions = $wpdb->get_results( $wpdb->prepare(
             "SELECT predicted_price, prediction_for_time
@@ -269,4 +251,5 @@ class ASA_DB {
             'upcoming_predictions' => $predictions,
         ];
     }
+
 }
