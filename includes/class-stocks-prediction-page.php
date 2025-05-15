@@ -79,8 +79,8 @@ class ASA_Stocks_Prediction_Page {
             $markup .= '</ul>';
         }
 
-        $testData = ASA_DB::get_all_selected_stocks_isin();
-        $markup .= "<pre>" . print_r($testData, true) . "</pre>";
+        // $testData = ASA_DB::get_all_selected_stocks_isin();
+        // $markup .= "<pre>" . print_r($testData, true) . "</pre>";
         return $markup;
     }
 
